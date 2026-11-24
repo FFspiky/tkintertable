@@ -175,27 +175,23 @@ class TableCanvas(Canvas):
         self.bind('<B1-Motion>', self.handle_mouse_drag)
         self.bind('<Motion>', self.handle_motion)
 
-        self.bind_all("<Control-x>", self.deleteRow)
-        self.bind_all("<Control-n>", self.addRow)
-        self.bind_all("<Delete>", self.clearData)
-        self.bind_all("<Control-v>", self.paste)
+        self.bind("<Control-x>", self.deleteRow)
+        self.bind("<Control-n>", self.addRow)
+        self.bind("<Delete>", self.clearData)
+        self.bind("<Control-v>", self.paste)
 
-        #if not hasattr(self,'parentapp'):
-        #    self.parentapp = self.parentframe
-
-        self.parentframe.master.bind_all("<Right>", self.handle_arrow_keys)
-        self.parentframe.master.bind_all("<Left>", self.handle_arrow_keys)
-        self.parentframe.master.bind_all("<Up>", self.handle_arrow_keys)
-        self.parentframe.master.bind_all("<Down>", self.handle_arrow_keys)
-        self.parentframe.master.bind_all("<KP_8>", self.handle_arrow_keys)
-        self.parentframe.master.bind_all("<Return>", self.handle_arrow_keys)
-        self.parentframe.master.bind_all("<Tab>", self.handle_arrow_keys)
+        self._bind_navigation(self)
         #if 'windows' in self.platform:
         self.bind("<MouseWheel>", self.mouse_wheel)
         self.bind('<Button-4>', self.mouse_wheel)
         self.bind('<Button-5>', self.mouse_wheel)
         self.focus_set()
         return
+
+    def _bind_navigation(self, widget):
+        """Navigate from the canvas or the cell being edited."""
+        for key in ("Right", "Left", "Up", "Down", "KP_8", "Return", "Tab"):
+            widget.bind("<%s>" % key, self.handle_arrow_keys, add="+")
 
     def getModel(self):
         """Get the current table model"""
@@ -1655,6 +1651,7 @@ class TableCanvas(Canvas):
         self.cellentry.icursor(END)
         self.cellentry.bind('<Return>', callback)
         self.cellentry.bind('<KeyRelease>', callback)
+        self._bind_navigation(self.cellentry)
         self.cellentry.focus_set()
         self.entrywin=self.create_window(x1+self.inset,y1+self.inset,
                                 width=w-self.inset*2,height=h-self.inset*2,
